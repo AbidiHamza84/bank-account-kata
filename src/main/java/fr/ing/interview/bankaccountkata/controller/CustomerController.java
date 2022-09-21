@@ -20,13 +20,13 @@ public class CustomerController {
         return this.customerService.makeTransaction(amount, accountId);
     }
 
-    @GetMapping("/api/customers/accounts")
-    public List<Account> getAccounts() {
-        return null;
+    @GetMapping("/api/customers/{customerId}/accounts")
+    public List<Account> getAccounts(@PathVariable Long customerId) {
+        return this.customerService.checkBalance(customerId);
     }
 
     @GetMapping("api/customers/accounts/{accountId}/transactions")
-    public List<Transaction> getHistory(@PathVariable String accountId) {
-        return null;
+    public List<Transaction> getHistory(@PathVariable Long accountId) throws Exception {
+        return this.customerService.history(accountId);
     }
 }
