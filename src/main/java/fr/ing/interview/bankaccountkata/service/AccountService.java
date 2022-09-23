@@ -4,17 +4,20 @@ import fr.ing.interview.bankaccountkata.entity.Account;
 import fr.ing.interview.bankaccountkata.repository.AccountRepository;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @Service
 public class AccountService implements AccountServiceInterface {
-    private AccountRepository repository;
+    private final AccountRepository repository;
 
     public AccountService(AccountRepository repository) {
         this.repository = repository;
     }
 
     @Override
-    public Account updateBalance(Long accountId, int amount) {
-        return this.repository.updateBalance(accountId, amount);
+    public Account updateBalance(Long accountId, BigDecimal amount) {
+        this.repository.updateBalance(accountId, amount);
+        return findAccountById(accountId);
     }
 
     @Override

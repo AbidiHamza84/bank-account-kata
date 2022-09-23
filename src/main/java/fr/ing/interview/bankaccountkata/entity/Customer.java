@@ -3,12 +3,11 @@ package fr.ing.interview.bankaccountkata.entity;
 import com.sun.istack.NotNull;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name = "customer")
 public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -24,15 +23,17 @@ public class Customer {
 
     @Column
     @NotNull
-    private Date birthday;
+    private LocalDate birthday;
 
-    @OneToMany
+    @OneToMany(mappedBy = "customer",
+            orphanRemoval = true,
+            cascade = CascadeType.ALL)
     private List<Account> accounts;
 
     public Customer() {
     }
 
-    public Customer(String firstname, String lastname, Date birthday) {
+    public Customer(String firstname, String lastname, LocalDate birthday) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.birthday = birthday;
@@ -51,11 +52,17 @@ public class Customer {
         return lastname;
     }
 
-    public Date getBirthday() {
+    public LocalDate getBirthday() {
         return birthday;
     }
 
     public List<Account> getAccounts() {
         return accounts;
+    }
+
+    public void addAccount(Account account) {
+        if (!this.accounts.contains(account)) {
+            this.accounts.add(account);
+        }
     }
 }

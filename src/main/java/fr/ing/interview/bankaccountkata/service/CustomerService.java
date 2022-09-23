@@ -4,15 +4,18 @@ import fr.ing.interview.bankaccountkata.entity.Account;
 import fr.ing.interview.bankaccountkata.entity.Customer;
 import fr.ing.interview.bankaccountkata.entity.Transaction;
 import fr.ing.interview.bankaccountkata.repository.CustomerRepository;
+import fr.ing.interview.bankaccountkata.service.Exeption.InsufficientBalanceException;
+import fr.ing.interview.bankaccountkata.service.Exeption.LowAmountException;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
 public class CustomerService implements CustomerServiceInterface {
-    private CustomerRepository repository;
-    private AccountServiceInterface accountService;
-    private TransactionServiceInterface transactionService;
+    private final CustomerRepository repository;
+    private final AccountServiceInterface accountService;
+    private final TransactionServiceInterface transactionService;
 
     public CustomerService(CustomerRepository repository, AccountServiceInterface accountService, TransactionServiceInterface transactionService) {
         this.repository = repository;
@@ -21,10 +24,32 @@ public class CustomerService implements CustomerServiceInterface {
     }
 
     @Override
-    public Account makeTransaction(int amount, Long accountId) throws Exception {
+    public Account deposit(BigDecimal amount, Long accountId) throws Exception {
+        // check amount
+        if (amount.compareTo(BigDecimal.valueOf(0.1)) <= 0) {
+            throw new LowAmountException("Expected amount to be greater than 0.1. Passed amount " + amount);
+        }
+
+        // update account balance
+        Account account = this.accountService.updateBalance(accountId, amount);
+
+        // save transaction
+        Transaction transaction = new Transaction(amount, account);
+        this.transactionService.register(transaction);
+
+        // return updated account
+        return account;
+    }
+
+    @Override
+    public Account withdraw(BigDecimal amount, Long accountId) throws Exception {
+        if (amount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Expected amount to be greater than 0. Passed amount " + amount);
+        }
+
         // check balance
-        if (this.accountService.findAccountById(accountId).getBalance() + amount < 0) {
-            throw new Exception("Insufficient balance");
+        if (this.accountService.findAccountById(accountId).getBalance().subtract(amount).compareTo(BigDecimal.ZERO) < 0) {
+            throw new InsufficientBalanceException("Insufficient balance");
         }
 
         // update account balance
@@ -45,6 +70,17 @@ public class CustomerService implements CustomerServiceInterface {
 
     @Override
     public List<Transaction> history(Long accountId) throws Exception {
-        return this.accountService.findAccountById(accountId).getTransactions();
+        Account account = this.accountService.findAccountById(accountId);
+
+        if (null == account) {
+            throw new Exception("AccountNotFound");
+        }
+
+        return account.getTransactions();
+    }
+
+    @Override
+    public List<Customer> getAllCustomers() {
+        return (List<Customer>) this.repository.findAll();
     }
 }

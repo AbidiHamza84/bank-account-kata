@@ -3,10 +3,10 @@ package fr.ing.interview.bankaccountkata.entity;
 import com.sun.istack.NotNull;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "transaction")
 public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -16,7 +16,7 @@ public class Transaction {
     private LocalDateTime processedAt;
 
     @Column
-    private int amount;
+    private BigDecimal amount;
 
     @ManyToOne
     @NotNull
@@ -25,7 +25,7 @@ public class Transaction {
     public Transaction() {
     }
 
-    public Transaction(int amount, Account account) {
+    public Transaction(BigDecimal amount, Account account) {
         this.amount = amount;
         this.processedAt = LocalDateTime.now();
         this.account = account;
@@ -39,7 +39,7 @@ public class Transaction {
         return processedAt;
     }
 
-    public int getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 }

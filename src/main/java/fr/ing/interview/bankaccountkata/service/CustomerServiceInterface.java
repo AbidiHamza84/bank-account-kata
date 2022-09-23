@@ -5,11 +5,15 @@ import fr.ing.interview.bankaccountkata.entity.Customer;
 import fr.ing.interview.bankaccountkata.entity.Transaction;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface CustomerServiceInterface {
     @Transactional
-    Account makeTransaction(int amount, Long accountId) throws Exception;
+    Account deposit(BigDecimal amount, Long accountId) throws Exception;
+    Account withdraw (BigDecimal amount, Long accountId) throws Exception;
     List<Account> checkBalance(Long customerId);
     List<Transaction> history(Long accountId) throws Exception;
+
+    List<Customer> getAllCustomers();
 }
